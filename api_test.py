@@ -129,7 +129,7 @@ def main():
 
         # Waiting 10 minutes before deleteing the report
         print("waiting 10 minutes before deleting the report file...")
-        time.sleep(600) # Wait for 600 seconds(10 Minutes)
+        time.sleep(3600) # Wait for 600 seconds(1 hours)
 
         if os.path.exists(REPORT_FILE_PATH):
             os.remove(REPORT_FILE_PATH)
@@ -148,7 +148,7 @@ def main():
 
 # Schedule the script daliy to run at a specfic time
 def schedule_tasks():
-    schedule.every().day.at("10.00").do(main) #Run at 9.00 AM
+    schedule.every().day.at("10.30").do(main) #Run at 10.30 AM
     schedule.every().day.at("18.00").do(main) #Run at 6.00 PM
 
     print("Scheduler started. Waiting for the schedule tasks..")
