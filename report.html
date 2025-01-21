@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">report.html</h1>
+    <p>Report generated on 21-Jan-2025 at 16:06:43 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">8 tests took 00:00:08.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" disabled/>
+            <span class="failed">0 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">8 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.12.8&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.26100-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;8.3.4&#34;, &#34;pluggy&#34;: &#34;1.5.0&#34;}, &#34;Plugins&#34;: {&#34;anyio&#34;: &#34;4.8.0&#34;, &#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;}}, &#34;tests&#34;: {&#34;tests/test_email_signup.py::test_email_user_flow[credentials0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_email_signup.py::test_email_user_flow[credentials0]&#34;, &#34;duration&#34;: &#34;997 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_email_signup.py::test_email_user_flow[credentials0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;997 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nNew email user signup request...\nSignup response status: 200\nSignup response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;User already exists&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;isNewUser&amp;quot;:false}}\nResponse JSON: {&amp;#x27;statusCode&amp;#x27;: 200, &amp;#x27;message&amp;#x27;: &amp;#x27;User already exists&amp;#x27;, &amp;#x27;body&amp;#x27;: {&amp;#x27;isNewUser&amp;#x27;: False}}\nExisting email detected. Logging in with email and password...\nLogin response status code: 200\nLogin response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Success&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;user&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;678f646b1027b300117baca4&amp;quot;,&amp;quot;rating&amp;quot;:{&amp;quot;average&amp;quot;:0,&amp;quot;ratingCount&amp;quot;:0,&amp;quot;reviewCount&amp;quot;:0},&amp;quot;notificationSettings&amp;quot;:{&amp;quot;hasChatNotificationsAllowed&amp;quot;:true,&amp;quot;hasClassRemindersAllowed&amp;quot;:true,&amp;quot;hasPromotionsAndTipsAllowed&amp;quot;:true,&amp;quot;hasNewClassesAllowed&amp;quot;:true,&amp;quot;hasProfileAlertsAllowed&amp;quot;:true,&amp;quot;hasOtherNotificationsAllowed&amp;quot;:true,&amp;quot;hasSMSNotificationsAllowed&amp;quot;:true},&amp;quot;type&amp;quot;:[&amp;quot;student&amp;quot;],&amp;quot;name&amp;quot;:&amp;quot;ashok&amp;quot;,&amp;quot;numberOfFreeTrials&amp;quot;:3,&amp;quot;interests&amp;quot;:[],&amp;quot;expertise&amp;quot;:[],&amp;quot;languages&amp;quot;:[],&amp;quot;isEmailVerified&amp;quot;:true,&amp;quot;isPhoneNumberVerified&amp;quot;:false,&amp;quot;isOnline&amp;quot;:false,&amp;quot;hasAcceptedTOC&amp;quot;:true,&amp;quot;isNewUser&amp;quot;:true,&amp;quot;isStudentSignUpCompleted&amp;quot;:true,&amp;quot;isTeacherSignUpCompleted&amp;quot;:false,&amp;quot;topics&amp;quot;:[],&amp;quot;showPopUpforCoupon&amp;quot;:false,&amp;quot;currency&amp;quot;:&amp;quot;INR&amp;quot;,&amp;quot;isNewRegistrationScreen&amp;quot;:false,&amp;quot;holidayList&amp;quot;:[],&amp;quot;showStudentFee&amp;quot;:true,&amp;quot;isTimezoneAlertEnabled&amp;quot;:true,&amp;quot;loginType&amp;quot;:&amp;quot;email&amp;quot;,&amp;quot;isSubscriptionActivated&amp;quot;:false,&amp;quot;isFreeTrailEnabled&amp;quot;:false,&amp;quot;phoneNumber&amp;quot;:&amp;quot;12345678917&amp;quot;,&amp;quot;areaCode&amp;quot;:&amp;quot;+91&amp;quot;,&amp;quot;timezone&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;652d2ab14eeb65744d58b772&amp;quot;,&amp;quot;offsetInHrs&amp;quot;:5.5,&amp;quot;offsetInMinutes&amp;quot;:330,&amp;quot;standardName&amp;quot;:&amp;quot;(GMT+05:30) India Time - Kolkata&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;Asia/Kolkata&amp;quot;,&amp;quot;countryCode&amp;quot;:&amp;quot;IN&amp;quot;,&amp;quot;countryName&amp;quot;:&amp;quot;India&amp;quot;,&amp;quot;stdNameAbbr&amp;quot;:&amp;quot;IST&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;},&amp;quot;lastDashboardState&amp;quot;:&amp;quot;student&amp;quot;,&amp;quot;email&amp;quot;:&amp;quot;sugun@fexbox.org&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2025-01-21T09:10:03.320Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2025-01-21T10:36:36.044Z&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA42641&amp;quot;,&amp;quot;wallet&amp;quot;:{&amp;quot;wBalance&amp;quot;:0,&amp;quot;tBalance&amp;quot;:0,&amp;quot;pBalance&amp;quot;:0},&amp;quot;hasPassword&amp;quot;:true,&amp;quot;showAddress&amp;quot;:false,&amp;quot;studentProfileCompletionStats&amp;quot;:{&amp;quot;stepsCompleted&amp;quot;:2,&amp;quot;totalSteps&amp;quot;:4,&amp;quot;percentage&amp;quot;:50},&amp;quot;picture&amp;quot;:{&amp;quot;location&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;,&amp;quot;thumbnail&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;},&amp;quot;studentRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward &amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, we can choose who to learn from at whaot.com. They are getting started and its cool. Check it out whaot.com and check it out for app https://play.google.com/store/apps/details?id=ai.whaot.snt&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA42641&amp;quot;},&amp;quot;teacherRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward when the profile is approved&amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, I invite you to join the world of teaching at whaot.com, a new way to teach and share your knowledge with the world. App coming soon.&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA42641&amp;quot;},&amp;quot;token&amp;quot;:&amp;quot;9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee510dbf97b8c59e669fb91228bab3793009dace77103d8b4489e4c34bb4debf9763d975fc4d5f96ac4f5a98c7334de22cdc916ecbf5c9632dcd499c935ef3564e5cd181e7854f1a737f86d33d6f65059e37fc8b012d4b3991ecf3f4d1630ed9c3fe8349740ded6323c3ab71593bb2fb8d04fa03215466264974a5c5bbf1f003666953544eb97cdaa05ebeb6982d6484d6732dc0a225790b16979c237a5b4909c842130309f04d5d055e58f3a9cfa7d447376e93f6f0201e44ef382e0b671d351a3ec5d7548dcb4ba48e7e94638915c843be01e29cb3cc3ca00b23a75335152fdd18849cf1a4f7750925bb740ad05b6f3d92bba1c35295c32df092814643153f5acc6f7ad0eb78da632d38bb1616638384e1e185895dbbc30f219be2c57a26f1d8c2737fe541158c261184af52d24532a2749505f267ff181b3777590dd9278d3a0799f2abede04f65f6ec9b8364af0b59f10fd1cda80bf325334f63487760822ec&amp;quot;,&amp;quot;expertiseVerification&amp;quot;:[],&amp;quot;teacherDocuments&amp;quot;:[]}}}\n&#34;}], &#34;tests/test_email_signup.py::test_email_user_flow[credentials1]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_email_signup.py::test_email_user_flow[credentials1]&#34;, &#34;duration&#34;: &#34;885 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_email_signup.py::test_email_user_flow[credentials1]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;885 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nNew email user signup request...\nSignup response status: 200\nSignup response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;User already exists&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;isNewUser&amp;quot;:false}}\nResponse JSON: {&amp;#x27;statusCode&amp;#x27;: 200, &amp;#x27;message&amp;#x27;: &amp;#x27;User already exists&amp;#x27;, &amp;#x27;body&amp;#x27;: {&amp;#x27;isNewUser&amp;#x27;: False}}\nExisting email detected. Logging in with email and password...\nLogin response status code: 200\nLogin response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Success&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;user&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;678f646d1027b300117baca8&amp;quot;,&amp;quot;rating&amp;quot;:{&amp;quot;average&amp;quot;:0,&amp;quot;ratingCount&amp;quot;:0,&amp;quot;reviewCount&amp;quot;:0},&amp;quot;notificationSettings&amp;quot;:{&amp;quot;hasChatNotificationsAllowed&amp;quot;:true,&amp;quot;hasClassRemindersAllowed&amp;quot;:true,&amp;quot;hasPromotionsAndTipsAllowed&amp;quot;:true,&amp;quot;hasNewClassesAllowed&amp;quot;:true,&amp;quot;hasProfileAlertsAllowed&amp;quot;:true,&amp;quot;hasOtherNotificationsAllowed&amp;quot;:true,&amp;quot;hasSMSNotificationsAllowed&amp;quot;:true},&amp;quot;type&amp;quot;:[&amp;quot;student&amp;quot;],&amp;quot;name&amp;quot;:&amp;quot;ashok&amp;quot;,&amp;quot;numberOfFreeTrials&amp;quot;:3,&amp;quot;interests&amp;quot;:[],&amp;quot;expertise&amp;quot;:[],&amp;quot;languages&amp;quot;:[],&amp;quot;isEmailVerified&amp;quot;:true,&amp;quot;isPhoneNumberVerified&amp;quot;:false,&amp;quot;isOnline&amp;quot;:false,&amp;quot;hasAcceptedTOC&amp;quot;:true,&amp;quot;isNewUser&amp;quot;:true,&amp;quot;isStudentSignUpCompleted&amp;quot;:true,&amp;quot;isTeacherSignUpCompleted&amp;quot;:false,&amp;quot;topics&amp;quot;:[],&amp;quot;showPopUpforCoupon&amp;quot;:false,&amp;quot;currency&amp;quot;:&amp;quot;INR&amp;quot;,&amp;quot;isNewRegistrationScreen&amp;quot;:false,&amp;quot;holidayList&amp;quot;:[],&amp;quot;showStudentFee&amp;quot;:true,&amp;quot;isTimezoneAlertEnabled&amp;quot;:true,&amp;quot;loginType&amp;quot;:&amp;quot;email&amp;quot;,&amp;quot;isSubscriptionActivated&amp;quot;:false,&amp;quot;isFreeTrailEnabled&amp;quot;:false,&amp;quot;phoneNumber&amp;quot;:&amp;quot;1425013257&amp;quot;,&amp;quot;areaCode&amp;quot;:&amp;quot;+91&amp;quot;,&amp;quot;timezone&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;652d2ab14eeb65744d58b772&amp;quot;,&amp;quot;offsetInHrs&amp;quot;:5.5,&amp;quot;offsetInMinutes&amp;quot;:330,&amp;quot;standardName&amp;quot;:&amp;quot;(GMT+05:30) India Time - Kolkata&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;Asia/Kolkata&amp;quot;,&amp;quot;countryCode&amp;quot;:&amp;quot;IN&amp;quot;,&amp;quot;countryName&amp;quot;:&amp;quot;India&amp;quot;,&amp;quot;stdNameAbbr&amp;quot;:&amp;quot;IST&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;},&amp;quot;lastDashboardState&amp;quot;:&amp;quot;student&amp;quot;,&amp;quot;email&amp;quot;:&amp;quot;murugan@fexbox.org&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2025-01-21T09:10:05.182Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2025-01-21T10:36:36.955Z&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA82642&amp;quot;,&amp;quot;wallet&amp;quot;:{&amp;quot;wBalance&amp;quot;:0,&amp;quot;tBalance&amp;quot;:0,&amp;quot;pBalance&amp;quot;:0},&amp;quot;hasPassword&amp;quot;:true,&amp;quot;showAddress&amp;quot;:false,&amp;quot;studentProfileCompletionStats&amp;quot;:{&amp;quot;stepsCompleted&amp;quot;:2,&amp;quot;totalSteps&amp;quot;:4,&amp;quot;percentage&amp;quot;:50},&amp;quot;picture&amp;quot;:{&amp;quot;location&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;,&amp;quot;thumbnail&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;},&amp;quot;studentRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward &amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, we can choose who to learn from at whaot.com. They are getting started and its cool. Check it out whaot.com and check it out for app https://play.google.com/store/apps/details?id=ai.whaot.snt&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA82642&amp;quot;},&amp;quot;teacherRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward when the profile is approved&amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, I invite you to join the world of teaching at whaot.com, a new way to teach and share your knowledge with the world. App coming soon.&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA82642&amp;quot;},&amp;quot;token&amp;quot;:&amp;quot;9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee510dbf97b8c59e669fb91228bab3793007c5f0e5d569142fe577f73433b858deba7add1d318ffbdcf07d6f932df027d2473c4bb5f3226aec4ecb352fd5ddc5df009cb6db353db3409cdcbcbbdf57db8bf4cf61993ff694e339e5fc7a04704bf85c9dd7386299217830f4355ed5fbae24f6b8fbaf215a0f3bc3d3fa3fef55b19c2aadb0308c8dbfcd570d1109a1c8129b9f65ae0b8e4bdff9f96df7f40fcb4e65fd7de9505a9cafdbc84e0bfa9955d7a8bd3e3011c7bbd35f0a460cb66887d03e10bacf35f34afeb9dcb2589af3d5c7497bba01f0a420e886d2bc3562370c0cbbcba197e2ea611acca47efd7f1b11aa3272cd0b70f5695f10edec021b018e911174518ed9b0ce93adda73e671dc4931639679aa94bf83c046ff7bffd0e76ad393362513d05de1319a5a92a51e78187886ccd805f431e2963899524089e75a8701071a1b07ae3753e62f92a5deea60a91d1d7565c8959b72a155ac72cb6a6a655104d41483963e3d4cb44b38eb518cb2040&amp;quot;,&amp;quot;expertiseVerification&amp;quot;:[],&amp;quot;teacherDocuments&amp;quot;:[]}}}\n&#34;}], &#34;tests/test_forgotpassword.py::test_forgotpassword_flow[credentials0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgotpassword.py::test_forgotpassword_flow[credentials0]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgotpassword.py::test_forgotpassword_flow[credentials0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nforgot password email id entered....\nforgot password auth headers: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nForgot Password Status code : 200\nForgot password status text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;OTP sent successfully&amp;quot;}\nResponse JSON: {&amp;#x27;statusCode&amp;#x27;: 200, &amp;#x27;message&amp;#x27;: &amp;#x27;OTP sent successfully&amp;#x27;}\nForgot password click OTP inti....\nEmail resend headers: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nEmail resend OTP Staus code : 200\nEmail resend OTP response text : {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Success&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;isVerified&amp;quot;:true}}\nReset password process initi....\nReset password headers : {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nReset Password status_code : 200\nReset password response text : {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Password changed successfully&amp;quot;}\nlogin intit...\nAfter login : {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nAfter login user response status code : 200\nAfter login user response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Success&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;user&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;673190a21027b300117b5353&amp;quot;,&amp;quot;rating&amp;quot;:{&amp;quot;average&amp;quot;:0,&amp;quot;ratingCount&amp;quot;:0,&amp;quot;reviewCount&amp;quot;:0},&amp;quot;notificationSettings&amp;quot;:{&amp;quot;hasChatNotificationsAllowed&amp;quot;:true,&amp;quot;hasClassRemindersAllowed&amp;quot;:true,&amp;quot;hasPromotionsAndTipsAllowed&amp;quot;:true,&amp;quot;hasNewClassesAllowed&amp;quot;:true,&amp;quot;hasProfileAlertsAllowed&amp;quot;:true,&amp;quot;hasOtherNotificationsAllowed&amp;quot;:true,&amp;quot;hasSMSNotificationsAllowed&amp;quot;:true},&amp;quot;type&amp;quot;:[&amp;quot;student&amp;quot;],&amp;quot;name&amp;quot;:&amp;quot;Kumar Ajith&amp;quot;,&amp;quot;numberOfFreeTrials&amp;quot;:3,&amp;quot;interests&amp;quot;:[],&amp;quot;expertise&amp;quot;:[],&amp;quot;languages&amp;quot;:[],&amp;quot;isEmailVerified&amp;quot;:true,&amp;quot;isPhoneNumberVerified&amp;quot;:false,&amp;quot;isOnline&amp;quot;:false,&amp;quot;hasAcceptedTOC&amp;quot;:true,&amp;quot;isNewUser&amp;quot;:false,&amp;quot;isStudentSignUpCompleted&amp;quot;:true,&amp;quot;isTeacherSignUpCompleted&amp;quot;:false,&amp;quot;topics&amp;quot;:[],&amp;quot;showPopUpforCoupon&amp;quot;:false,&amp;quot;currency&amp;quot;:&amp;quot;INR&amp;quot;,&amp;quot;isNewRegistrationScreen&amp;quot;:false,&amp;quot;holidayList&amp;quot;:[],&amp;quot;showStudentFee&amp;quot;:true,&amp;quot;isTimezoneAlertEnabled&amp;quot;:true,&amp;quot;loginType&amp;quot;:&amp;quot;email&amp;quot;,&amp;quot;isSubscriptionActivated&amp;quot;:false,&amp;quot;isFreeTrailEnabled&amp;quot;:false,&amp;quot;phoneNumber&amp;quot;:&amp;quot;1590018900&amp;quot;,&amp;quot;areaCode&amp;quot;:&amp;quot;+91&amp;quot;,&amp;quot;timezone&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;652d2ab14eeb65744d58b772&amp;quot;,&amp;quot;offsetInHrs&amp;quot;:5.5,&amp;quot;offsetInMinutes&amp;quot;:330,&amp;quot;standardName&amp;quot;:&amp;quot;(GMT+05:30) India Time - Kolkata&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;Asia/Kolkata&amp;quot;,&amp;quot;countryCode&amp;quot;:&amp;quot;IN&amp;quot;,&amp;quot;countryName&amp;quot;:&amp;quot;India&amp;quot;,&amp;quot;stdNameAbbr&amp;quot;:&amp;quot;IST&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;},&amp;quot;lastDashboardState&amp;quot;:&amp;quot;student&amp;quot;,&amp;quot;email&amp;quot;:&amp;quot;ajith@fexbox.org&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2024-11-11T05:05:38.587Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2025-01-21T10:36:38.400Z&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;3532415&amp;quot;,&amp;quot;wallet&amp;quot;:{&amp;quot;wBalance&amp;quot;:0,&amp;quot;tBalance&amp;quot;:0,&amp;quot;pBalance&amp;quot;:0},&amp;quot;hasPassword&amp;quot;:true,&amp;quot;showAddress&amp;quot;:false,&amp;quot;studentProfileCompletionStats&amp;quot;:{&amp;quot;stepsCompleted&amp;quot;:2,&amp;quot;totalSteps&amp;quot;:4,&amp;quot;percentage&amp;quot;:50},&amp;quot;picture&amp;quot;:{&amp;quot;location&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;,&amp;quot;thumbnail&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;},&amp;quot;studentRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward &amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, we can choose who to learn from at whaot.com. They are getting started and its cool. Check it out whaot.com and check it out for app https://play.google.com/store/apps/details?id=ai.whaot.snt&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;3532415&amp;quot;},&amp;quot;teacherRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward when the profile is approved&amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, I invite you to join the world of teaching at whaot.com, a new way to teach and share your knowledge with the world. App coming soon.&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;3532415&amp;quot;},&amp;quot;token&amp;quot;:&amp;quot;9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee510dbf97b8c59e669fb91228bab3793006f2fb0b0fcc5f51c5940f299ce9df56e145df32868aed642ad543e08092ad02957bf9a7f86901fd38e7e4a7dfe5a23b1edd4082f36e485de696a3daf355b9ec0269a72e204cbd71b5d37c3ed0dd32adeb26df95524cf92bb90ed1ed91f7736251306c3123687da2fc01bf5e47484c7667db49cd968e92b09243c0173133b5cf5e9be54028b50ad420275b23a02ddf8013df0e8da3375fbb9dccb034e6360d7c24eaa16833f11a7d8c4065ce25169d6a87b939bf2f1420bd53288049cae7b663464946aaeeedda78f6409c1a83d34d09c26ccb4442469e24e1860b16b817d88fe6375b35400855b614ca94a9ad1337343ad5d1b39c9c72659100658484b45ed0c3a748c91b2e036e1dc26c89c796e0c4ebe15aed1fefdfd4a22baa3b2ae55de9a994f2d3931d0a2614f2736ca6bc01adacaea307582325bcfa7c109607ac87292a6fec59c03a1ef1d4c2404a757f69cf6&amp;quot;,&amp;quot;expertiseVerification&amp;quot;:[],&amp;quot;teacherDocuments&amp;quot;:[]}}}\n&#34;}], &#34;tests/test_multiple_users.py::test_create_user[credentials0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multiple_users.py::test_create_user[credentials0]&#34;, &#34;duration&#34;: &#34;857 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multiple_users.py::test_create_user[credentials0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;857 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nCreating user with credentials: {&amp;#x27;name&amp;#x27;: &amp;#x27;user1&amp;#x27;, &amp;#x27;phonenumber&amp;#x27;: &amp;#x27;1420014201&amp;#x27;}\n&#34;}], &#34;tests/test_multiple_users.py::test_create_user[credentials1]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multiple_users.py::test_create_user[credentials1]&#34;, &#34;duration&#34;: &#34;841 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multiple_users.py::test_create_user[credentials1]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;841 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nCreating user with credentials: {&amp;#x27;name&amp;#x27;: &amp;#x27;user2&amp;#x27;, &amp;#x27;phonenumber&amp;#x27;: &amp;#x27;1420014202&amp;#x27;}\n&#34;}], &#34;tests/test_multiple_users.py::test_delete_user[credentials0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multiple_users.py::test_delete_user[credentials0]&#34;, &#34;duration&#34;: &#34;893 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multiple_users.py::test_delete_user[credentials0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;893 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_multiple_users.py::test_delete_user[credentials1]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_multiple_users.py::test_delete_user[credentials1]&#34;, &#34;duration&#34;: &#34;872 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_multiple_users.py::test_delete_user[credentials1]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;872 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_phonenumber_signup.py::test_user_flow[credentials0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_phonenumber_signup.py::test_user_flow[credentials0]&#34;, &#34;duration&#34;: &#34;841 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_phonenumber_signup.py::test_user_flow[credentials0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;841 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\nAPI end point:https://api-staging.whaot.com/user/account/check-user-exists-by-phone\nAuth headers: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nSignup response status: 200\nSignup response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;OTP sent successfully&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;isNewUser&amp;quot;:false}}\nResponse headers: {&amp;#x27;Date&amp;#x27;: &amp;#x27;Tue, 21 Jan 2025 10:36:42 GMT&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json; charset=utf-8&amp;#x27;, &amp;#x27;Transfer-Encoding&amp;#x27;: &amp;#x27;chunked&amp;#x27;, &amp;#x27;Connection&amp;#x27;: &amp;#x27;keep-alive&amp;#x27;, &amp;#x27;Server&amp;#x27;: &amp;#x27;nginx&amp;#x27;, &amp;#x27;Vary&amp;#x27;: &amp;#x27;Accept-Encoding, origin&amp;#x27;, &amp;#x27;access-control-expose-headers&amp;#x27;: &amp;#x27;WWW-Authenticate,Server-Authorization&amp;#x27;, &amp;#x27;cache-control&amp;#x27;: &amp;#x27;no-cache&amp;#x27;, &amp;#x27;Front-End-Https&amp;#x27;: &amp;#x27;on&amp;#x27;, &amp;#x27;Content-Encoding&amp;#x27;: &amp;#x27;gzip&amp;#x27;}\nResponse JSON: {&amp;#x27;statusCode&amp;#x27;: 200, &amp;#x27;message&amp;#x27;: &amp;#x27;OTP sent successfully&amp;#x27;, &amp;#x27;body&amp;#x27;: {&amp;#x27;isNewUser&amp;#x27;: False}}\nExisting user detected. Logging in...\nIf Existing user login started...\nExisting user Auth headers: {&amp;#x27;Authorization&amp;#x27;: &amp;#x27;Bearer 9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee5eff7381e83f789cd67373135ca906ba72926c5dfc7146bad2d2438af4d2584bab2d9f7c1f5ba9a74c25a8781df72dfa339c872670df2261256f9a4c3d8d8317a410cdb7c24fb83aa6403a74afeeba8f92370d5672b842c89d2f5d9a84f1d4e2c92a8f5737d368609b14f60a7e0dfcac4d946b618f82f002c41ac04aab135d986&amp;#x27;, &amp;#x27;Content-Type&amp;#x27;: &amp;#x27;application/json&amp;#x27;}\nExisting user Signup response status: 200\nExisting user Signup response text: {&amp;quot;statusCode&amp;quot;:200,&amp;quot;message&amp;quot;:&amp;quot;Success&amp;quot;,&amp;quot;body&amp;quot;:{&amp;quot;user&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;678f62171027b300117baca0&amp;quot;,&amp;quot;rating&amp;quot;:{&amp;quot;average&amp;quot;:0,&amp;quot;ratingCount&amp;quot;:0,&amp;quot;reviewCount&amp;quot;:0},&amp;quot;notificationSettings&amp;quot;:{&amp;quot;hasChatNotificationsAllowed&amp;quot;:true,&amp;quot;hasClassRemindersAllowed&amp;quot;:true,&amp;quot;hasPromotionsAndTipsAllowed&amp;quot;:true,&amp;quot;hasNewClassesAllowed&amp;quot;:true,&amp;quot;hasProfileAlertsAllowed&amp;quot;:true,&amp;quot;hasOtherNotificationsAllowed&amp;quot;:true,&amp;quot;hasSMSNotificationsAllowed&amp;quot;:true},&amp;quot;type&amp;quot;:[&amp;quot;student&amp;quot;],&amp;quot;name&amp;quot;:&amp;quot;ashok&amp;quot;,&amp;quot;numberOfFreeTrials&amp;quot;:3,&amp;quot;interests&amp;quot;:[],&amp;quot;expertise&amp;quot;:[],&amp;quot;languages&amp;quot;:[],&amp;quot;isEmailVerified&amp;quot;:false,&amp;quot;isPhoneNumberVerified&amp;quot;:true,&amp;quot;isOnline&amp;quot;:false,&amp;quot;hasAcceptedTOC&amp;quot;:true,&amp;quot;isNewUser&amp;quot;:true,&amp;quot;isStudentSignUpCompleted&amp;quot;:true,&amp;quot;isTeacherSignUpCompleted&amp;quot;:false,&amp;quot;topics&amp;quot;:[],&amp;quot;showPopUpforCoupon&amp;quot;:false,&amp;quot;currency&amp;quot;:&amp;quot;INR&amp;quot;,&amp;quot;isNewRegistrationScreen&amp;quot;:false,&amp;quot;holidayList&amp;quot;:[],&amp;quot;showStudentFee&amp;quot;:true,&amp;quot;isTimezoneAlertEnabled&amp;quot;:true,&amp;quot;loginType&amp;quot;:&amp;quot;phoneNumber&amp;quot;,&amp;quot;isSubscriptionActivated&amp;quot;:false,&amp;quot;isFreeTrailEnabled&amp;quot;:false,&amp;quot;phoneNumber&amp;quot;:&amp;quot;1254684550&amp;quot;,&amp;quot;areaCode&amp;quot;:&amp;quot;+91&amp;quot;,&amp;quot;timezone&amp;quot;:{&amp;quot;_id&amp;quot;:&amp;quot;652d2ab14eeb65744d58b772&amp;quot;,&amp;quot;offsetInHrs&amp;quot;:5.5,&amp;quot;offsetInMinutes&amp;quot;:330,&amp;quot;standardName&amp;quot;:&amp;quot;(GMT+05:30) India Time - Kolkata&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;Asia/Kolkata&amp;quot;,&amp;quot;countryCode&amp;quot;:&amp;quot;IN&amp;quot;,&amp;quot;countryName&amp;quot;:&amp;quot;India&amp;quot;,&amp;quot;stdNameAbbr&amp;quot;:&amp;quot;IST&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2023-10-16T12:21:06.122Z&amp;quot;},&amp;quot;lastDashboardState&amp;quot;:&amp;quot;student&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2025-01-21T09:00:07.322Z&amp;quot;,&amp;quot;updatedAt&amp;quot;:&amp;quot;2025-01-21T10:36:42.986Z&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA02640&amp;quot;,&amp;quot;wallet&amp;quot;:{&amp;quot;wBalance&amp;quot;:0,&amp;quot;tBalance&amp;quot;:0,&amp;quot;pBalance&amp;quot;:0},&amp;quot;hasPassword&amp;quot;:false,&amp;quot;showAddress&amp;quot;:false,&amp;quot;studentProfileCompletionStats&amp;quot;:{&amp;quot;stepsCompleted&amp;quot;:2,&amp;quot;totalSteps&amp;quot;:4,&amp;quot;percentage&amp;quot;:50},&amp;quot;picture&amp;quot;:{&amp;quot;location&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;,&amp;quot;thumbnail&amp;quot;:&amp;quot;https://whaot-dev-static.s3.ap-south-1.amazonaws.com/static/images/user.png&amp;quot;},&amp;quot;studentRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward &amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, we can choose who to learn from at whaot.com. They are getting started and its cool. Check it out whaot.com and check it out for app https://play.google.com/store/apps/details?id=ai.whaot.snt&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA02640&amp;quot;},&amp;quot;teacherRatingDetails&amp;quot;:{&amp;quot;message&amp;quot;:&amp;quot;Your friend will receive a reward when the profile is approved&amp;quot;,&amp;quot;title&amp;quot;:&amp;quot;Invite your friends on Whaot to build a strong community.&amp;quot;,&amp;quot;shareText&amp;quot;:&amp;quot;Hi, I invite you to join the world of teaching at whaot.com, a new way to teach and share your knowledge with the world. App coming soon.&amp;quot;,&amp;quot;referralCode&amp;quot;:&amp;quot;CA02640&amp;quot;},&amp;quot;token&amp;quot;:&amp;quot;9ab6c59281c57b7db7929f978255788d8514da143bc63a00ebeae4b2fc2b2ee510dbf97b8c59e669fb91228bab3793007189d68c36feefd030d4a4d2422691205bce5edfa4ddb119604975f383f01fabfb646673a5704adc1da76eb3f380042b30ef43a4c2fd699647d070b0b18dd28a48ea5a22b346c4f3f656169f628125cebe5767156b3a2f0f41574a30084706cf2d8cbf46188d9b07d37ff999929eb17d46c16942c1c25fae08c833b7eff453dbd801b49b2a13655419e042a44cefe35ae541bf61c7a40ca99c9d1cd2bff2357f3f70832235e3203d7e52e0aa87c951b3bb3e06f1fe84e49e780f35a1563963ac89ced9dc4ddbe247f15170c77377aa7dc7c172ed94064b7f5b13622efe723a31504108cca8c5800cd21cfde97207ba1184210ae4e4420278c9c2b375ccafa3531231ca1a732151c4598c2fb1e4547f6965aed7aa93c9af7f5b60aaf796040ba0080006a5f1a9b52aba900d1b8a81d6fe&amp;quot;,&amp;quot;expertiseVerification&amp;quot;:[],&amp;quot;otherExpertises&amp;quot;:[],&amp;quot;PanUser&amp;quot;:null,&amp;quot;teacherDocuments&amp;quot;:[]},&amp;quot;isVerified&amp;quot;:true}}\nLogin successful for existing user.\n&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>
