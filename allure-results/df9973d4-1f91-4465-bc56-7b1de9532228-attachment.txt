@@ -1,1 +1,0 @@
-Creating user with credentials: {'name': 'user2', 'phonenumber': '1420014202'}
