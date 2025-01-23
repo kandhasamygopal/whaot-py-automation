@@ -1,6 +1,6 @@
 #Base URL and authentication tokens
 
-BASE_URL = "https://api-staging.whaot.com"  # Replace with your API base URL
+BASE_URL = "https://api-dev.whaot.com"  # Replace with your API base URL
 API_KEY = "your-api-key"  # Replace with your actual API key, if required
 
 # Authentication Token
