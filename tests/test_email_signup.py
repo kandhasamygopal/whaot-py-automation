@@ -87,4 +87,6 @@ def test_email_user_flow(credentials):
         assert response.status_code == 200, "Email login failed"
         assert response.json().get("message") == "Success", f"Expected 'Success' but got '{response.json().get('message')}'"
 
+        print("Existing user detected so  user login  to email & Password")
+
 
