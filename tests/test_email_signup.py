@@ -1,6 +1,6 @@
 import requests
 from utils.config import BASE_URL, AUTH_HEADERS
-from utils.helpers import read_credentials
+from utils.helpers import read_credentials , json_read_credentials
 import pytest
 
 # Email Login Function API Endpoints
@@ -10,10 +10,10 @@ NEW_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
 EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 
 #Email user data stored file path
-CREDENTIALS_FILE = "credentials/email_signup.csv"
+CREDENTIALS_FILE = "credentials/email_signup.json"
 
 # Test Function
-@pytest.mark.parametrize("credentials",read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_email_user_flow(credentials):
     Email = credentials["email"]
     Password = credentials["password"]

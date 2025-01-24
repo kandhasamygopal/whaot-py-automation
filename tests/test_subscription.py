@@ -2,7 +2,7 @@ import requests
 import json
 import pytest
 from utils.config import BASE_URL,AUTH_HEADERS
-from utils.helpers import read_credentials
+from utils.helpers import read_credentials ,json_read_credentials
 
 
 # Sunbscription Booking API's function
@@ -11,7 +11,7 @@ FREE_TRAIL = f"{BASE_URL}/enable-free-trail"
 SUBSCRIPTION_ENROLL = f"{BASE_URL}/subscription-booking/enroll"
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/subscribtion.csv"
+CREDENTIALS_FILE = "credentials/subscribtion.json"
 
 @pytest.fixture(scope="module")
 def user_data():
@@ -24,7 +24,7 @@ def create_user():
     return {}
 
 #Test function for booking API's enroll and unroll
-@pytest.mark.parametrize("credentials",read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_new_user_created(credentials,create_user):
     area_code = credentials["areaCode"]
     phone_number = credentials["phoneNumber"]
@@ -68,7 +68,7 @@ def test_new_user_created(credentials,create_user):
     create_user[credentials["phoneNumber"]] = {"user_id":User_id,"token":token}
 
 # Free trail enabled for new created user
-@pytest.mark.parametrize ("credentials",read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize ("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_free_trail_enabled(credentials,create_user):
  
  print("Test to create new user booking free trail enabled using store credentials...")
@@ -91,7 +91,7 @@ def test_free_trail_enabled(credentials,create_user):
 
 # New free trail user after enroll the new class
 
-@pytest.mark.parametrize ("credentials",read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize ("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_subscribtion_enroll(credentials,create_user):   
    print("New user enroll the new class...")
    assignment_id = credentials["assignmentid"]

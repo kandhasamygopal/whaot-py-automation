@@ -1,10 +1,10 @@
 import pytest
 import requests
-from utils.helpers import read_credentials
+from utils.helpers import read_credentials , json_read_credentials
 from utils.config import BASE_URL, AUTH_HEADERS
 
 # CSV Inputs
-CREDENTIALS_FILE = "credentials/multiple_users.csv"
+CREDENTIALS_FILE = "credentials/multiple_users.json"
 
 # API Endpoints
 SIGNUP_API = f"{BASE_URL}/user/account/student-signup"
@@ -20,7 +20,7 @@ def created_users():
     """Fixture to store user details after creation."""
     return {}
 
-@pytest.mark.parametrize("credentials", read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials", json_read_credentials(CREDENTIALS_FILE))
 def test_create_user(credentials, created_users):
     """Test to create a new user and store credentials for deletion."""
     print(f"Creating user with credentials: {credentials}")
@@ -53,7 +53,7 @@ def test_create_user(credentials, created_users):
     # Store the user ID and token for later use
     created_users[credentials["phonenumber"]] = {"user_id": user_id, "token": token}
 
-@pytest.mark.parametrize("credentials", read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials", json_read_credentials(CREDENTIALS_FILE))
 def test_delete_user(credentials, created_users):
     """Test to delete the created user using stored credentials."""
     user_info = created_users.get(credentials["phonenumber"])

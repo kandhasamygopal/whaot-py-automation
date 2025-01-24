@@ -1,7 +1,7 @@
 import requests
 import json  # Ensure JSON library is imported
 from utils.config import BASE_URL, AUTH_HEADERS
-from utils.helpers import read_credentials
+from utils.helpers import read_credentials , json_read_credentials
 import pytest
 
 # API Endpoints
@@ -10,10 +10,10 @@ OTP_VERIFICATION = f"{BASE_URL}/user/account/validate-phone-otp"
 NEW_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/phonenumber_signup.csv" 
+CREDENTIALS_FILE = "credentials/phonenumber_signup.json" 
 
 # Test Function
-@pytest.mark.parametrize("credentials",read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_user_flow(credentials):
     # Step 1: Check if this user is new or existing
     area_code = credentials["areacode"]

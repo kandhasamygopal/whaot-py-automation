@@ -1,10 +1,10 @@
 import requests
 from utils.config import BASE_URL,AUTH_HEADERS
-from utils.helpers import read_credentials
+from utils.helpers import read_credentials ,json_read_credentials
 import pytest
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/forgotpassword_credentials.csv"  
+CREDENTIALS_FILE = "credentials/forgotpassword_credentials.json"  
 
 #Forgot password function API's
 # EMAIL_LOGIN = f"{BASE_URL}/user/account/check-user-exists-by-email"
@@ -16,7 +16,7 @@ EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 
 
 #Forgot Password function
-@pytest.mark.parametrize("credentials" ,read_credentials(CREDENTIALS_FILE))
+@pytest.mark.parametrize("credentials" , json_read_credentials(CREDENTIALS_FILE))
 def test_forgotpassword_flow(credentials):
     Email = credentials["email"]
     Password = credentials["password"]
