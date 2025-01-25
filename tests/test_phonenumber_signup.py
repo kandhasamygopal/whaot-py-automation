@@ -10,7 +10,7 @@ OTP_VERIFICATION = f"{BASE_URL}/user/account/validate-phone-otp"
 NEW_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/phonenumber_signup.json" 
+CREDENTIALS_FILE = "credentials/student_api_data.json" 
 
 # Test Function
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
@@ -18,6 +18,15 @@ def test_user_flow(credentials):
     # Step 1: Check if this user is new or existing
     area_code = credentials["areacode"]
     phone_number = credentials["phonenumber"]
+    otp_code = credentials["otpCode"]
+    authType_signup = credentials["authType_signup"]
+    parent_name = credentials["parentName"]
+    child_name = credentials["childName"]
+    Date_of_Birth = credentials["DOB"]
+    login_type_phone_number = credentials["loginType_phoneNumber"]
+    device_Type = credentials["deviceType"]
+    time_zone = credentials["timezone"]
+    authType_login = credentials["authType_login"]
 
     payload = {"areaCode":area_code,"phoneNumber":phone_number} 
     (f"ending new user signup request...")
@@ -54,8 +63,8 @@ def test_user_flow(credentials):
         payload2= {
             "phoneNumber": phone_number,
             "areaCode": area_code,
-            "otpCode": "123456",  # Replace with dynamic OTP if applicable
-            "authType": "signup",
+            "otpCode": otp_code,  # Replace with dynamic OTP if applicable
+            "authType": authType_signup,
         }
         print(f"OTP Authentication Started...")
         response = requests.post(OTP_VERIFICATION, json=payload2, headers=AUTH_HEADERS)
@@ -67,12 +76,12 @@ def test_user_flow(credentials):
 
         # Step 3: Test new user signup
         payload3 = {
-            "name": "ashok",
-            "childName": "ram",
-            "dateOfBirth": "1994-03-11",
-            "loginType": "phoneNumber",
-            "deviceType": "web",
-            "timezone": "652d2ab14eeb65744d58b772",
+            "name": parent_name,
+            "childName": child_name,
+            "dateOfBirth": Date_of_Birth,
+            "loginType": login_type_phone_number,
+            "deviceType": device_Type,
+            "timezone": time_zone,
             "isGlobal": False,
             "phoneNumber": phone_number,
             "areaCode": area_code,
@@ -94,8 +103,8 @@ def test_user_flow(credentials):
         payload4 = {
             "phoneNumber": phone_number,
             "areaCode": area_code,
-            "otpCode": "123456",  # Replace with dynamic OTP if applicable
-            "authType": "login",
+            "otpCode": otp_code,  # Replace with dynamic OTP if applicable
+            "authType": authType_login,
         }
         print(f"If Existing user login started...")
         response = requests.post(OTP_VERIFICATION, json=payload4, headers=AUTH_HEADERS)

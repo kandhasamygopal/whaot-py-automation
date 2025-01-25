@@ -11,11 +11,11 @@ FREE_TRAIL = f"{BASE_URL}/enable-free-trail"
 SUBSCRIPTION_ENROLL = f"{BASE_URL}/subscription-booking/enroll"
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/subscribtion.json"
+CREDENTIALS_FILE = "credentials/student_api_data.json"
 
 @pytest.fixture(scope="module")
 def user_data():
-    """Fixture to read user credentials from CSV."""
+    """Fixture to read user credentials from JSON."""
     return read_credentials(CREDENTIALS_FILE)
 
 @pytest.fixture(scope="module")
@@ -26,19 +26,25 @@ def create_user():
 #Test function for booking API's enroll and unroll
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_new_user_created(credentials,create_user):
-    area_code = credentials["areaCode"]
-    phone_number = credentials["phoneNumber"]
+    area_code = credentials["areacode"]
+    phone_number = credentials["phonenumber"]
     parent_name = credentials["parentName"]
     child_name = credentials["childName"]
+    Date_of_Birth = credentials["DOB"]
+    login_Type_phone_number = credentials["loginType_phoneNumber"]
+    device_Type = credentials["deviceType"]
+    time_zone = credentials["timezone"]
+    # otp_code = credentials["otpCode"]
+    # auth_Type = credentials["authType"]
 
 
     payload = {
             "name": parent_name,
             "childName": child_name,
-            "dateOfBirth": "1994-03-11",
-            "loginType": "phoneNumber",
-            "deviceType": "web",
-            "timezone": "652d2ab14eeb65744d58b772",
+            "dateOfBirth": Date_of_Birth,
+            "loginType": login_Type_phone_number,
+            "deviceType": device_Type,
+            "timezone": time_zone,
             "isGlobal": False,
             "phoneNumber": phone_number,
             "areaCode": area_code,
@@ -65,7 +71,7 @@ def test_new_user_created(credentials,create_user):
     assert token #Token not found in response
 
     # Store the UserID and token for later use
-    create_user[credentials["phoneNumber"]] = {"user_id":User_id,"token":token}
+    create_user[credentials["phonenumber"]] = {"user_id":User_id,"token":token}
 
 # Free trail enabled for new created user
 @pytest.mark.parametrize ("credentials",json_read_credentials(CREDENTIALS_FILE))
@@ -73,8 +79,8 @@ def test_free_trail_enabled(credentials,create_user):
  
  print("Test to create new user booking free trail enabled using store credentials...")
 
- user_info = create_user.get(credentials["phoneNumber"])
- assert user_info , f"No Stored data found for {credentials['phoneNumber']}"
+ user_info = create_user.get(credentials["phonenumber"])
+ assert user_info , f"No Stored data found for {credentials['phonenumber']}"
  token = user_info["token"]
 
  assert token # No token for user free trail enabled function
@@ -99,8 +105,8 @@ def test_subscribtion_enroll(credentials,create_user):
    payload = {
            "assignmentId": assignment_id
    }
-   user_info = create_user.get(credentials["phoneNumber"])
-   assert user_info , f"No stored data found for {credentials["phoneNumber"]}"
+   user_info = create_user.get(credentials["phonenumber"])
+   assert user_info , f"No stored data found for {credentials["phonenumber"]}"
    token = user_info["token"]
    headers = {"Authorization" : f"Bearer {token}"}
 

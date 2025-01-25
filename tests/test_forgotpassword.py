@@ -4,7 +4,7 @@ from utils.helpers import read_credentials ,json_read_credentials
 import pytest
 
 #Test credentials file path
-CREDENTIALS_FILE = "credentials/forgotpassword_credentials.json"  
+CREDENTIALS_FILE = "credentials/student_api_data.json"  
 
 #Forgot password function API's
 # EMAIL_LOGIN = f"{BASE_URL}/user/account/check-user-exists-by-email"
@@ -20,8 +20,12 @@ EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 def test_forgotpassword_flow(credentials):
     Email = credentials["email"]
     Password = credentials["password"]
+    otp_code = credentials["otpCode"]
+    authType_forgot_password = credentials["authType_forgotpassword"]
+    authType_signup = credentials["authType_signup"]
+    login_type_email = credentials["loginType_email"]
 
-    payload = {"email":Email,"authType":"forgot-password"}
+    payload = {"email":Email,"authType":authType_forgot_password}
 
     print("forgot password email id entered....")
 
@@ -42,7 +46,7 @@ def test_forgotpassword_flow(credentials):
     #Step 2 : forgot password click verify the otp
     print ("Forgot password click OTP inti....")
 
-    payload1 = {"email":Email, "otpCode":"123456", "authType":"signup"}
+    payload1 = {"email":Email, "otpCode":otp_code, "authType":authType_signup}
 
     response= requests.post(VAILDATE_EMAIL_OTP,json=payload1,headers=AUTH_HEADERS)
     print(f"Email resend headers: {AUTH_HEADERS}")
@@ -64,10 +68,12 @@ def test_forgotpassword_flow(credentials):
     #Step 4 : After reset password updated and login 
     print ("login intit...")
 
-    payload3 = {"email":Email, "password":Password, "loginType": "email"}
+    payload3 = {"email":Email, "password":Password, "loginType": login_type_email}
 
     response = requests.post(EMAIL_USER_LOGIN,json=payload3,headers=AUTH_HEADERS)
     print(f"After login : {AUTH_HEADERS}")
     print(f"After login user response status code : {response.status_code}")
     print(f"After login user response text: {response.text}")
     assert response.status_code == 200 , f"after login status code: {response.status_code}"
+
+    print("New Password updated succesfully...")

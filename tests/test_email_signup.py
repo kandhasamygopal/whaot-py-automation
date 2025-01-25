@@ -10,7 +10,7 @@ NEW_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
 EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 
 #Email user data stored file path
-CREDENTIALS_FILE = "credentials/email_signup.json"
+CREDENTIALS_FILE = "credentials/student_api_data.json"
 
 # Test Function
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
@@ -19,6 +19,14 @@ def test_email_user_flow(credentials):
     Password = credentials["password"]
     area_code = credentials["areacode"]
     phone_number = credentials["phonenumber"]
+    parent_name = credentials["parentName"]
+    child_name = credentials["childName"]
+    Date_of_Birth = credentials["DOB"]
+    login_type_email = credentials["loginType_email"]
+    device_Type = credentials["deviceType"]
+    time_zone = credentials["timezone"]
+    otp_code = credentials["otpCode"]
+    auth_type_signup = credentials["authType_signup"]
 
     payload = {"email": Email}
     print("New email user signup request...")
@@ -47,8 +55,8 @@ def test_email_user_flow(credentials):
         # Step 2: Validate OTP
         payload_otp = {
             "email": Email,
-            "otpCode": "123456",  # Replace with dynamic OTP if applicable
-            "authType": "signup"
+            "otpCode": otp_code,  # Replace with dynamic OTP if applicable
+            "authType": auth_type_signup
         }
         print("OTP Authentication started...")
         response = requests.post(OTP_VERIFICATION, json=payload_otp, headers=AUTH_HEADERS)
@@ -59,10 +67,12 @@ def test_email_user_flow(credentials):
 
         # Step 3: Complete Signup
         payload_signup = {
-            "name": "ashok",
-            "loginType": "email",
-            "deviceType": "web",
-            "timezone": "652d2ab14eeb65744d58b772",
+            "name": parent_name,
+            "childName": child_name,
+            "dateOfBirth": Date_of_Birth,
+            "loginType": login_type_email,
+            "deviceType": device_Type,
+            "timezone": time_zone,
             "isGlobal": False,
             "phoneNumber":phone_number,
             "areaCode":area_code,
@@ -80,7 +90,7 @@ def test_email_user_flow(credentials):
         print("Existing email detected. Logging in with email and password...")
 
     # Step 2: Login
-        payload_login = {"email": Email, "password": Password, "loginType": "email"}
+        payload_login = {"email": Email, "password": Password, "loginType": login_type_email}
         response = requests.post(EMAIL_USER_LOGIN, json=payload_login, headers=AUTH_HEADERS)
         print(f"Login response status code: {response.status_code}")
         print(f"Login response text: {response.text}")
