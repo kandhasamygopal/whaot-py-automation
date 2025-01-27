@@ -18,12 +18,12 @@ EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 #Forgot Password function
 @pytest.mark.parametrize("credentials" , json_read_credentials(CREDENTIALS_FILE))
 def test_forgotpassword_flow(credentials):
-    Email = credentials["email"]
-    Password = credentials["password"]
-    otp_code = credentials["otpCode"]
-    authType_forgot_password = credentials["authType_forgotpassword"]
-    authType_signup = credentials["authType_signup"]
-    login_type_email = credentials["loginType_email"]
+    Email = credentials["email"]["email_address"]
+    Password = credentials["email"]["password"]
+    otp_code = credentials["otp_code"]
+    authType_forgot_password = credentials["auth_types"]["forgot_password"]
+    authType_signup = credentials["auth_types"]["signup"]
+    login_type_email = credentials["login_method"]["type"][0]
 
     payload = {"email":Email,"authType":authType_forgot_password}
 
@@ -76,4 +76,4 @@ def test_forgotpassword_flow(credentials):
     print(f"After login user response text: {response.text}")
     assert response.status_code == 200 , f"after login status code: {response.status_code}"
 
-    print("New Password updated succesfully...")
+    print("New Password updated & login succesfully...")

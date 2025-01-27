@@ -34,17 +34,17 @@ def Existing_user():
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_user_flow(credentials,create_user,Existing_user):
     # Step 1: Check if this user is new or existing
-    area_code = credentials["areacode"]
-    phone_number = credentials["phonenumber"]
-    otp_code = credentials["otpCode"]
-    authType_signup = credentials["authType_signup"]
-    parent_name = credentials["parentName"]
-    child_name = credentials["childName"]
-    Date_of_Birth = credentials["DOB"]
-    login_type_phone_number = credentials["loginType_phoneNumber"]
-    device_Type = credentials["deviceType"]
+    area_code = credentials["phone_number"]["areaCode"]
+    phone_number = credentials["phone_number"]["phone_number"]
+    otp_code = credentials["otp_code"]
+    authType_signup = credentials["auth_types"]["signup"]
+    parent_name = credentials["parent_name"]
+    child_name = credentials["child_name"]
+    Date_of_Birth = credentials["child_dob"]
+    login_type_phone_number = credentials["login_method"]["type"][2]
+    device_Type = credentials["device_type"]
     time_zone = credentials["timezone"]
-    authType_login = credentials["authType_login"]
+    authType_login = credentials["auth_types"]["login"]
 
     payload = {"areaCode":area_code,"phoneNumber":phone_number} 
     (f"creating new user signup request...")
@@ -169,9 +169,9 @@ def test_free_trail_enabled(credentials,create_user,Existing_user):
  
  print("Test to create new user booking free trail enabled using store credentials...")
 
- phone_number = credentials["phonenumber"]
+ phone_number = credentials["phone_number"]["phone_number"]
  user_info = create_user.get(phone_number) or Existing_user.get(phone_number)
- assert user_info , f"No Stored data found for {credentials['phonenumber']}"
+ assert user_info , f"No Stored data found for {credentials["phone_number"]["phone_number"]}"
  token = user_info["token"]
 
  assert token # No token for user free trail enabled function
@@ -191,15 +191,15 @@ def test_free_trail_enabled(credentials,create_user,Existing_user):
 @pytest.mark.parametrize ("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_subscribtion_enroll(credentials,create_user,Existing_user):   
    print("New user enroll the new class...")
-   phone_number = credentials["phonenumber"]
-   assignment_id = credentials["assignmentid"]
+   phone_number = credentials["phone_number"]["phone_number"]
+   assignment_id = credentials["assignment_id"]
 
    payload = {
            "assignmentId": assignment_id
    }
-   print(f"Print the class assignmentId{assignment_id}")
+   print(f"Print the class assignmentId : {assignment_id}")
    user_info = create_user.get(phone_number) or Existing_user.get(phone_number)
-   assert user_info , f"No stored data found for {credentials["phonenumber"]}"
+   assert user_info , f"No stored data found for {credentials["phone_number"]["phone_number"]}"
    token = user_info["token"]
    headers = {"Authorization" : f"Bearer {token}"}
 

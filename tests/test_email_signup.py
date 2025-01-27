@@ -12,21 +12,21 @@ EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
 #Email user data stored file path
 CREDENTIALS_FILE = "credentials/student_api_data.json"
 
-# Test Function
+# Test Function for email signup
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_email_user_flow(credentials):
-    Email = credentials["email"]
-    Password = credentials["password"]
-    area_code = credentials["areacode"]
-    phone_number = credentials["phonenumber"]
-    parent_name = credentials["parentName"]
-    child_name = credentials["childName"]
-    Date_of_Birth = credentials["DOB"]
-    login_type_email = credentials["loginType_email"]
-    device_Type = credentials["deviceType"]
+    Email = credentials["email"]["email_address"]
+    Password = credentials["email"]["password"]
+    area_code = credentials ["phone_number"]["areaCode"]
+    phone_number = credentials["email"]["phone_number"]
+    parent_name = credentials["parent_name"]
+    child_name = credentials["child_name"]
+    Date_of_Birth = credentials["child_dob"]
+    login_type_email = credentials["login_method"]["type"][1]
+    device_Type = credentials["device_type"]
     time_zone = credentials["timezone"]
-    otp_code = credentials["otpCode"]
-    auth_type_signup = credentials["authType_signup"]
+    otp_code = credentials["otp_code"]
+    auth_type_signup = credentials["auth_types"]["signup"]
 
     payload = {"email": Email}
     print("New email user signup request...")

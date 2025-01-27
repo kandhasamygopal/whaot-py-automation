@@ -16,19 +16,19 @@ CREDENTIALS_FILE = "credentials/student_api_data.json"
 @pytest.mark.parametrize("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_user_flow(credentials):
     # Step 1: Check if this user is new or existing
-    area_code = credentials["areacode"]
-    phone_number = credentials["phonenumber"]
-    otp_code = credentials["otpCode"]
-    authType_signup = credentials["authType_signup"]
-    parent_name = credentials["parentName"]
-    child_name = credentials["childName"]
-    Date_of_Birth = credentials["DOB"]
-    login_type_phone_number = credentials["loginType_phoneNumber"]
-    device_Type = credentials["deviceType"]
+    area_Code = credentials["phone_number"]["areaCode"]
+    phone_number = credentials["phone_number"]["phone_number"]
+    otp_code = credentials["otp_code"]
+    authType_signup = credentials["auth_types"]["signup"]
+    parent_name = credentials["parent_name"]
+    child_name = credentials["child_name"]
+    Date_of_Birth = credentials["child_dob"]
+    login_type_phone_number = credentials["login_method"]["type"][2]
+    device_Type = credentials["device_type"]
     time_zone = credentials["timezone"]
-    authType_login = credentials["authType_login"]
+    authType_login = credentials["auth_types"]["login"]
 
-    payload = {"areaCode":area_code,"phoneNumber":phone_number} 
+    payload = {"areaCode":area_Code,"phoneNumber":phone_number} 
     (f"ending new user signup request...")
     response = requests.post(USER_LOGIN, json=payload, headers=AUTH_HEADERS)  # Fixed issue here
     print(f"API end point:{USER_LOGIN}")
@@ -62,7 +62,7 @@ def test_user_flow(credentials):
         # Step 2: Verify OTP for new user
         payload2= {
             "phoneNumber": phone_number,
-            "areaCode": area_code,
+            "areaCode": area_Code,
             "otpCode": otp_code,  # Replace with dynamic OTP if applicable
             "authType": authType_signup,
         }
@@ -84,7 +84,7 @@ def test_user_flow(credentials):
             "timezone": time_zone,
             "isGlobal": False,
             "phoneNumber": phone_number,
-            "areaCode": area_code,
+            "areaCode": area_Code,
         }
         print(f"New user signup flow started...")
         response = requests.post(NEW_USER_SIGNUP, json=payload3, headers=AUTH_HEADERS)
@@ -102,7 +102,7 @@ def test_user_flow(credentials):
         # Step 2: Verify OTP for existing user
         payload4 = {
             "phoneNumber": phone_number,
-            "areaCode": area_code,
+            "areaCode": area_Code,
             "otpCode": otp_code,  # Replace with dynamic OTP if applicable
             "authType": authType_login,
         }
@@ -112,6 +112,7 @@ def test_user_flow(credentials):
         print(f"Existing user Signup response status: {response.status_code}")
         print(f"Existing user Signup response text: {response.text}")
         assert response.status_code == 200, f"Expected 'Success' but got '{response.json().get('message')}'"
+        print(f"Signup failed with response: {response.text}")
 
         is_verified = response.json().get("body", {}).get("isVerified", False)
         assert is_verified, "User verification failed"
