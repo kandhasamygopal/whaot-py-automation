@@ -55,6 +55,7 @@ def test_for_class_create (credentials):
             } for b in credentials["batches"] 
             ]
    
+    
     curriculum = [
                  {
                   "name": level["name"],
