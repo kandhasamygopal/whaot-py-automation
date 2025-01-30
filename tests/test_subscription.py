@@ -171,7 +171,7 @@ def test_free_trail_enabled(credentials,create_user,Existing_user):
 
  phone_number = credentials["phone_number"]["phone_number"]
  user_info = create_user.get(phone_number) or Existing_user.get(phone_number)
- assert user_info , f"No Stored data found for {credentials["phone_number"]["phone_number"]}"
+ assert user_info , f"No Stored data found for {credentials['phone_number']['phone_number']}"
  token = user_info["token"]
 
  assert token # No token for user free trail enabled function
@@ -191,7 +191,7 @@ def test_free_trail_enabled(credentials,create_user,Existing_user):
 @pytest.mark.parametrize ("credentials",json_read_credentials(CREDENTIALS_FILE))
 def test_subscribtion_enroll(credentials,create_user,Existing_user):   
    print("New user enroll the new class...")
-   phone_number = credentials["phone_number"]["phone_number"]
+   phone_number = credentials['phone_number']['phone_number']
    assignment_id = credentials["assignment_id"]
 
    payload = {
@@ -199,7 +199,7 @@ def test_subscribtion_enroll(credentials,create_user,Existing_user):
    }
    print(f"Print the class assignmentId : {assignment_id}")
    user_info = create_user.get(phone_number) or Existing_user.get(phone_number)
-   assert user_info , f"No stored data found for {credentials["phone_number"]["phone_number"]}"
+   assert user_info , f"No stored data found for {credentials['phone_number']['phone_number']}"
    token = user_info["token"]
    headers = {"Authorization" : f"Bearer {token}"}
 
