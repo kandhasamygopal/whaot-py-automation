@@ -101,7 +101,7 @@ def test_teacher_profile_create_flow(credentials):
     print(f"Teacher profile create API response status: {response.status_code}")
     print(f"Teacher profile create API response text: {response.text}")
     assert response.status_code == 200 , "Teacher profile registration failed"
-    assert response.json().get("message") == "Teacher created successfully" , f"Expected 'Success' but got '{response.json().get('message')}'"
+    assert response.json().get("message") == "Success" , f"Expected 'Success' but got '{response.json().get('message')}'"
     print("Teacher profile created Successfully")
 
 
@@ -127,5 +127,5 @@ def test_teacher_profile_create_flow(credentials):
     
       
       
-
+  
     
