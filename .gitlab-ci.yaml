@@ -1,0 +1,29 @@
+stages:
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pytest_cache/pip"
+  TEST_REPORT_DIR: "$CI_PROJECT_DIR/test_reports"
+
+cache:
+  paths:
+    - .pytest_cache/pip/
+    - .venv/
+
+before_script:
+  - apt-get update && apt-get install -y python3 python3-pip
+  - python3 -m venv .venv
+  - source .venv/bin/activate
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+
+pytest:
+  stage: test
+  script:
+    - pytest --junitxml=$TEST_REPORT_DIR/report.xml
+  artifacts:
+    paths:
+      - $TEST_REPORT_DIR/report.xml
+    when: always
+  only:
+    - main  # Run tests only on the main branch
