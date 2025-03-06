@@ -19,8 +19,8 @@ def test_for_class_create (credentials):
     class_Title = credentials["classTitle"]
     Tag_line = credentials["tagLine"]
     class_url = credentials["classUrl"]
-    category_id = credentials["category"]["_id"]
-    category_name = credentials["category"]["name"]
+    category_id = credentials["category"][0]["_id"]
+    category_name = credentials["category"][0]["name"]
     language = credentials["languages"]
     hash_Tag = credentials["hashTag"]
     Class_Theme = credentials["classTheme"]
@@ -57,24 +57,45 @@ def test_for_class_create (credentials):
    
     
     curriculum = [
-                 {
-                  "name": level["name"],
-                  "minAge": level["minAge"],
-                  "maxAge": level["maxAge"],
-                  "totalChapterCount": level["totalChapterCount"],
-               "modules": [
+            {
+        "name": level["name"],
+        "minAge": level["minAge"],
+        "maxAge": level["maxAge"],
+        "totalChapterCount": level["totalChapterCount"],
+        "modules": [
             {
                 "name": module["name"],
                 "moduleTitleBgColor": module["moduleTitleBgColor"],
                 "moduleBgColor": module["moduleBgColor"],
                 "chapters": [
-                    {"name": chapter["name"], "description": chapter["description"]}
-                    for chapter in module["chapters"]
+                    {
+                        "name": chapter["name"],
+                        "description": chapter["description"],
+                        "materials": [  
+                            {
+                                "type": material["type"],
+                                "materials": material["materials"],
+                                "driveLinks": material["driveLinks"]
+                            }
+                            for material in chapter.get("materials",[])  
+                        ],
+                        "studentMaterials": [  
+                            {
+                                "type": student_material["type"],
+                                "materials": student_material["materials"],
+                                "driveLinks": student_material["driveLinks"]
+                            }
+                            for student_material in chapter.get("studentMaterials",[])  
+                        ]
+                    }
+                    for chapter in module.get("chapters",[])  
                 ]
-            } for module in level["modules"]
+            }
+            for module in level.get("modules",[])  
         ]
-    } for level in credentials["curriculum"]["levels"]
-             ]
+    }
+    for level in credentials.get("curriculum",{}).get("levels",[])  
+]
   
     chapter_names = credentials["chapterNames"]
 

@@ -91,7 +91,7 @@ def test_teacher_profile_create_flow(credentials):
     "subscriptionAvailability": subscription_availability,
     "perHourRate":perHour_Rate ,
      "bio" : bio_graphy ,
-    "classPreferences": class_Preferences       
+    # "classPreferences": class_Preferences       
     
            }
     

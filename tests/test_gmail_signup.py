@@ -6,6 +6,8 @@ import pytest
 # Gmail Login API's flow
 GMAIL_SIGNUP_GMAIL_CHECK = f"{BASE_URL}/user/account/check-user-exists-by-email"
 NEW_GMAIL_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
+REFERRAL_CODE = f"{BASE_URL}/referral-code/{INVITE_CODE}"
+RESEND_OTP = f"{BASE_URL}/user/account/email-resendOtp"
 GMAIL_LOGIN = f"{BASE_URL}/user/account/login/email"
 
 # Gmail user data stored file path
@@ -23,9 +25,14 @@ def test_gmail_user_flow(credentials):
     device_Type = credentials["device_type"]
     time_zone = credentials["timezone"]
     area_code = credentials ["phone_number"]["areaCode"]
+    is_Invite_CodeVerified = credentials ["phone_number"]["isInviteCodeVerified"]
+    child_lastname = credentials["child_LastName"]
+    parent_lastname = credentials["parentsLastName"]
+    phone_number = credentials ["email"]["phone_number"]
+    inviteCode = credentials["invite_code"]
     
 
-    payload = {"email":GMAIL_SIGNUP_Gmail}
+    payload = {"email":GMAIL_SIGNUP_Gmail , "isInviteCodeVerified":is_Invite_CodeVerified }
 
     print("New Gmail user signup request...")
 
@@ -53,6 +60,28 @@ def test_gmail_user_flow(credentials):
         
         print("New user Gmail verification completed and starting signup details...")
 
+        # Step 3 : Verify the Invite code valid or not
+        response = requests.get(REFERRAL_CODE,headers=AUTH_HEADERS)
+        assert response.status_code == 200 , "Invite code validation failed"
+        assert response.json().get("message") == "RESPONSE_SUCCESS" , f"Excepted 'RESPONSE_SUCCESS' but got '{response.json().get('message')}'"
+        response_data = response.json()
+        print(f"the data invite code data {response_data}")
+        invite_code = response_data.get("body",{})
+
+        # Step 2: Verify resend OTP for new user
+        payload2= {
+            
+            
+            "email": Email,
+            "authType" : auth_type_signup
+            
+        }
+        print(f"Resend OTP Authentication Started...")
+        response = requests.post(RESEND_OTP, json=payload2, headers=AUTH_HEADERS)
+        print(f"OTP Auth headers: {AUTH_HEADERS}")
+        print(f"OTP response status: {response.status_code}")
+        print(f"OTP response text: {response.text}")
+        assert response.status_code == 200, "Resend OTP validation failed"
         # Step 3: Complete Signup
         payload_signup = {
             "name": parent_name,
@@ -64,7 +93,12 @@ def test_gmail_user_flow(credentials):
             "isGlobal": False,
             "phoneNumber":phone_number,
             "areaCode":area_code,
-            "email": GMAIL_SIGNUP_Gmail
+            "email": GMAIL_SIGNUP_Gmail,
+            "parentsLastName" :parent_lastname  ,
+            "childLastName" : child_lastname  ,
+            "phoneNumber": phone_number,
+            "areaCode": area_code,
+            "inviteCode" : inviteCode
             
         }
         print("Starting gmail user signup flow...")

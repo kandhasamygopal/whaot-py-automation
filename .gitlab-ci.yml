@@ -22,6 +22,8 @@ pytest:
   stage: test
   script:
     - source .venv/bin/activate
+    - pip install -r requirements.txt
+    - pip install python-socketio python-dotenv
     - pytest --junitxml=test_reports/report.xml --tb=short
   artifacts:
     when: always

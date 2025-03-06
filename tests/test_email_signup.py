@@ -1,10 +1,12 @@
 import requests
-from utils.config import BASE_URL, AUTH_HEADERS
+from utils.config import BASE_URL, AUTH_HEADERS ,INVITE_CODE
 from utils.helpers import read_credentials , json_read_credentials
 import pytest
 
 # Email Login Function API Endpoints
 EMAIL_LOGIN = f"{BASE_URL}/user/account/check-user-exists-by-email"
+REFERRAL_CODE = f"{BASE_URL}/referral-code/{INVITE_CODE}"
+RESEND_OTP = f"{BASE_URL}/user/account/email-resendOtp"
 OTP_VERIFICATION = f"{BASE_URL}/user/account/validate-email-otp"
 NEW_USER_SIGNUP = f"{BASE_URL}/user/account/student-signup"
 EMAIL_USER_LOGIN = f"{BASE_URL}/user/account/login"
@@ -27,8 +29,13 @@ def test_email_user_flow(credentials):
     time_zone = credentials["timezone"]
     otp_code = credentials["otp_code"]
     auth_type_signup = credentials["auth_types"]["signup"]
+    is_Invite_CodeVerified = credentials ["phone_number"]["isInviteCodeVerified"]
+    child_lastname = credentials["child_LastName"]
+    parent_lastname = credentials["parentsLastName"]
+    phone_number = credentials ["email"]["phone_number"]
+    inviteCode = credentials["invite_code"]
 
-    payload = {"email": Email}
+    payload = {"email": Email ,  "isInviteCodeVerified":is_Invite_CodeVerified }
     print("New email user signup request...")
 
     # Step 1: Check if the email user is new or existing
@@ -51,6 +58,29 @@ def test_email_user_flow(credentials):
 
     if email_newuser:
         print("New user detected. Starting email verification...")
+
+        # Step 3 : Verify the Invite code valid or not
+        response = requests.get(REFERRAL_CODE,headers=AUTH_HEADERS)
+        assert response.status_code == 200 , "Invite code validation failed"
+        assert response.json().get("message") == "RESPONSE_SUCCESS" , f"Excepted 'RESPONSE_SUCCESS' but got '{response.json().get('message')}'"
+        response_data = response.json()
+        print(f"the data invite code data {response_data}")
+        invite_code = response_data.get("body",{})
+
+        # Step 2: Verify resend OTP for new user
+        payload2= {
+            
+            
+            "email": Email,
+            "authType" : auth_type_signup
+            
+        }
+        print(f"Resend OTP Authentication Started...")
+        response = requests.post(RESEND_OTP, json=payload2, headers=AUTH_HEADERS)
+        print(f"OTP Auth headers: {AUTH_HEADERS}")
+        print(f"OTP response status: {response.status_code}")
+        print(f"OTP response text: {response.text}")
+        assert response.status_code == 200, "Resend OTP validation failed"
 
         # Step 2: Validate OTP
         payload_otp = {
@@ -77,7 +107,12 @@ def test_email_user_flow(credentials):
             "phoneNumber":phone_number,
             "areaCode":area_code,
             "email":Email,
-            "password":Password
+            "password":Password,
+            "parentsLastName" :parent_lastname  ,
+            "childLastName" : child_lastname  ,
+            "phoneNumber": phone_number,
+            "areaCode": area_code,
+            "inviteCode" : inviteCode
         }
         print("Starting email user signup flow...")
         response = requests.post(NEW_USER_SIGNUP, json=payload_signup, headers=AUTH_HEADERS)

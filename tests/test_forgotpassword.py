@@ -76,4 +76,4 @@ def test_forgotpassword_flow(credentials):
     print(f"After login user response text: {response.text}")
     assert response.status_code == 200 , f"after login status code: {response.status_code}"
 
-    print("New Password updated & login succesfully...")
+    print("New Password updated & login succesfully...") 
