@@ -12,7 +12,7 @@ DELETE_API = f"{BASE_URL}/user/account/delete"
 
 @pytest.fixture(scope="module")
 def user_data():
-    """Fixture to read user credentials from CSV."""
+    """Fixture to read user credentials from CSV.""
     return read_credentials(CREDENTIALS_FILE)
 
 @pytest.fixture(scope="module")
